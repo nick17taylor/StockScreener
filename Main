@@ -1,0 +1,106 @@
+from Stock import Stock
+from Sector import Sector
+from Sector_Lists import Sector_Lists
+from GUI import GUI
+import time
+
+def left(string, val):
+    return string[:val]
+
+def convert_to_obj_list(ticker_list):
+    obj_list = []
+    i = 0
+    for ticker in ticker_list:
+        i+=1
+        print(i)
+        try:
+          try: 
+              obj_list.append(Stock(ticker))
+          except KeyError:
+              pass
+              print('Error')
+        except TypeError:
+          print('TypeError')
+        time.sleep(1)
+    return obj_list
+    
+    
+print('Generating Sector Lists...')
+sector_lists = Sector_Lists()
+sector_lists.get_lists()
+
+print('Creating Lists...')
+tech_list = convert_to_obj_list(sector_lists.tech_list)
+energy_list = convert_to_obj_list(sector_lists.energy_list)
+basic_materials_list = convert_to_obj_list(sector_lists.basic_materials_list)
+utilities_list = convert_to_obj_list(sector_lists.utilities_list)
+healthcare_list = convert_to_obj_list(sector_lists.healthcare_list)
+financial_services_list = convert_to_obj_list(sector_lists.financial_services_list)
+consumer_cyclical_list = convert_to_obj_list(sector_lists.consumer_cyclical_list)
+consumer_defensive_list = convert_to_obj_list(sector_lists.consumer_defensive_list)
+communication_services_list = convert_to_obj_list(sector_lists.communication_services_list)
+real_estate_list = convert_to_obj_list(sector_lists.real_estate_list)
+industrials_list = convert_to_obj_list(sector_lists.industrials_list)
+
+
+tech_sector                     = Sector('Technology'               ,tech_list)
+energy_sector                   = Sector('Energy'                   ,energy_list)
+basic_materials_sector          = Sector('Basic Materials'          ,basic_materials_list)
+utilities_sector                = Sector('Utilities'                ,utilities_list)
+healthcare_sector               = Sector('Healthcare'               ,healthcare_list)
+financial_services_sector       = Sector('Financial Services'       ,financial_services_list)
+consumer_cyclical_sector        = Sector('Consumer Cyclical'        ,consumer_cyclical_list)
+consumer_defensive_sector       = Sector('Consumer Defensive'       ,consumer_defensive_list)
+communication_services_sector   = Sector('Communication Services'   ,communication_services_list)
+real_estate_sector              = Sector('Real Estate'              ,real_estate_list)
+industrials_sector              = Sector('Industrials'              ,industrials_list)
+
+sector_list = [tech_sector,energy_sector,basic_materials_sector,utilities_sector,healthcare_sector
+               ,financial_services_sector,consumer_cyclical_sector,consumer_defensive_sector
+               ,communication_services_sector,real_estate_sector,industrials_sector]
+
+sector_name_list                    = []
+sector_ytd_return_list              = []
+sector_month_return_list            = []
+sector_three_month_return_list      = []
+sector_six_month_return_list        = []
+sector_twelve_month_return_list     = []
+
+
+for sector in sector_list:
+    sector.init_sector()
+    sector_name_list.append(sector.sector)
+    sector_ytd_return_list.append(sector.ytd_return)
+    sector_month_return_list.append(sector.month_return)
+    sector_three_month_return_list.append(sector.three_month_return)
+    sector_six_month_return_list.append(sector.six_month_return)
+    sector_twelve_month_return_list.append(sector.twelve_month_return)
+
+sector_df                           = pd.DataFrame(index=[sector_name_list])
+sector_df['YTD Return']             = sector_ytd_return_list
+sector_df['1 Month Return']         = sector_month_return_list
+sector_df['3 Month Return']         = sector_three_month_return_list
+sector_df['6 Month Return']         = sector_six_month_return_list
+sector_df['12 Month Return']        = sector_twelve_month_return_list
+sector_df['Weighted Return']        = sector_df['YTD Return'] * 0.05 + sector_df['1 Month Return'] * 0.1 + sector_df['3 Month Return'] * 0.2 + sector_df['6 Month Return'] * 0.3 + sector_df['12 Month Return'] * 0.35
+
+
+print('Currently the hottest sectors are...')
+sector_df = sector_df.sort_values(by=['1 Month Return'], ascending=False)
+df_index = sector_df.index
+for i in range(3):
+    print(df_index[i][0], ' with a 1 month return of ' + left(str(sector_df.loc[df_index[i][0]]['1 Month Return'][0]*100),5) + '%')
+
+print('\n')
+print('The sectors with the best weighted returns are...')
+sector_df = sector_df.sort_values(by=['1 Month Return'], ascending=False)
+df_index = sector_df.index
+for i in range(3):
+    print(df_index[i][0], ' with a weighted return of ' + left(str(sector_df.loc[df_index[i][0]]['Weighted Return'][0]*100),5) + '%')
+    
+gui = GUI(sector_list)
+gui.main()
+    
+    
+    
+    
