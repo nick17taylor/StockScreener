@@ -1,0 +1,37 @@
+from yahooquery import Screener, Ticker
+
+class Sector_Lists:
+    
+    def __init__(self):
+        
+        self.tech_list                          = []
+        self.energy_list                        = []
+        self.basic_materials_list               = []
+        self.utilities_list                     = []
+        self.healthcare_list                    = []
+        self.financial_services_list            = []
+        self.consumer_cyclical_list             = []
+        self.consumer_defensive_list            = []
+        self.communication_services_list        = []
+        self.real_estate_list                   = []
+        self.industrials_list                   = []
+        
+        self.key_list = ['ms_basic_materials','ms_communication_services','ms_consumer_cyclical', 'ms_consumer_defensive',
+                         'ms_energy','ms_financial_services', 'ms_healthcare', 'ms_industrials','ms_real_estate',
+                         'ms_technology','ms_utilities']
+        
+        self.list_list = [self.basic_materials_list, self.communication_services_list, self.consumer_cyclical_list
+                          ,self.consumer_defensive_list, self.energy_list, self.financial_services_list
+                          ,self.healthcare_list, self.industrials_list, self.real_estate_list
+                          ,self.tech_list,self.utilities_list]
+
+        
+    def get_lists(self):
+        s = Screener(backoff_factor=0.5,status_forcelist=[404],retry=10)
+        for i in range(len(self.key_list)):
+            sector = self.key_list[i]
+            sector_list = self.list_list[i]
+            data = s.get_screeners(sector, count=50)
+            for j in range(len(data[sector]['quotes'])):
+                ticker = data[sector]['quotes'][j]['symbol']
+                sector_list.append(ticker)
