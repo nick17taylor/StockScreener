@@ -1,0 +1,37 @@
+from yahooquery import Screener, Ticker
+import numpy as np
+import pandas as pd
+
+class Stock:
+    def __init__(self, ticker):
+        self.ticker                 = ticker
+        self.stock_obj              = Ticker(ticker,status_forcelist=[404],backoff_factor=1,retry=10)
+        
+        self.company                = self.stock_obj.price[self.ticker]['shortName']
+        self.sector                 = self.stock_obj.asset_profile[self.ticker]['sector']
+        
+        self.current_price          = self.stock_obj.financial_data[self.ticker]['currentPrice']
+        self.month_return           = self.get_return(self.stock_obj.history(period='1mo')['close'][-1],self.stock_obj.history(period='1mo')['close'][0])
+        self.three_month_return     = self.get_return(self.stock_obj.history(period='3mo')['close'][-1],self.stock_obj.history(period='3mo')['close'][0])
+        self.six_month_return       = self.get_return(self.stock_obj.history(period='6mo')['close'][-1],self.stock_obj.history(period='6mo')['close'][0])
+        self.twelve_month_return    = self.get_return(self.stock_obj.history(period='1y')['close'][-1],self.stock_obj.history(period='1y')['close'][0])
+        self.ytd_return             = self.get_return(self.stock_obj.history(period='ytd')['close'][-1],self.stock_obj.history(period='ytd')['close'][0])
+        
+        self.curr_revenue           = self.stock_obj.financial_data[self.ticker]['totalRevenue']
+        self.curr_gross_profit      = self.stock_obj.financial_data[self.ticker]['grossProfits']
+        self.curr_ebitda            = self.stock_obj.financial_data[self.ticker]['ebitda']
+        
+        self.curr_debt              = self.stock_obj.financial_data[self.ticker]['totalDebt']
+        self.curr_cash              = self.stock_obj.financial_data[self.ticker]['totalCash']
+        
+        
+        self.profit_margin          = self.stock_obj.key_stats[self.ticker]['profitMargins']
+        self.os                     = self.stock_obj.key_stats[self.ticker]['sharesOutstanding']
+        self.ev                     = self.stock_obj.key_stats[self.ticker]['enterpriseValue']
+        self.market_cap             = self.stock_obj.price[self.ticker]['marketCap']
+        
+        self.analyst_rec            = self.stock_obj.financial_data[self.ticker]['recommendationKey']
+        
+        
+    def get_return(self, new, old):
+        return (new-old)/old
