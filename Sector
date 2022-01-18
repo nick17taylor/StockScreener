@@ -1,0 +1,84 @@
+import numpy as np
+
+
+class Sector:
+    
+    def __init__(self, sector_name, stock_list):
+        self.sector = sector_name
+        
+        self.stock_list = stock_list
+        
+        self.curr_value             = 0
+        self.month_value            = 0
+        self.three_month_value      = 0
+        self.six_month_value        = 0
+        self.twelve_month_value     = 0
+        self.ytd_value              = 0
+        
+        # UNWEIGHTED RETURNS
+        self.month_return           = None
+        self.three_month_return     = None
+        self.six_month_return       = None
+        self.twelve_month_return    = None
+        self.ytd_return             = None
+        
+        
+    def get_total_market_cap(self):
+      month_list = []
+      three_month_list = []
+      six_month_list = []
+      twelve_month_list = []
+      ytd_list = []
+        
+      for stock in self.stock_list:
+          self.curr_value         += stock.market_cap
+
+          month_list.append(self.get_market_cap(stock.current_price         , stock.month_return          , stock))
+          three_month_list.append(self.get_market_cap(stock.current_price   , stock.three_month_return    , stock))
+          six_month_list.append(self.get_market_cap(stock.current_price     , stock.six_month_return      , stock))
+          twelve_month_list.append(self.get_market_cap(stock.current_price  , stock.twelve_month_return   , stock))
+          ytd_list.append(self.get_market_cap(stock.current_price           , stock.ytd_return            , stock))
+
+      month_list = np.array(month_list)
+      month_list = month_list[np.logical_not(np.isnan(month_list))]
+      self.month_value = np.sum(month_list)
+
+      three_month_list = np.array(three_month_list)
+      three_month_list = three_month_list[np.logical_not(np.isnan(three_month_list))]
+      self.three_month_value = np.sum(three_month_list)
+
+      six_month_list = np.array(six_month_list)
+      six_month_list = six_month_list[np.logical_not(np.isnan(six_month_list))]
+      self.six_month_value = np.sum(six_month_list)
+
+      twelve_month_list = np.array(twelve_month_list)
+      twelve_month_list = twelve_month_list[np.logical_not(np.isnan(twelve_month_list))]
+      self.twelve_month_value = np.sum(twelve_month_list)
+
+      ytd_list = np.array(ytd_list)
+      ytd_list = ytd_list[np.logical_not(np.isnan(ytd_list))]
+      self.ytd_value = np.sum(ytd_list)
+
+            
+    def get_price(self, curr_price, rate):
+        return curr_price / (1 + rate)
+    
+    def get_market_cap(self, curr_price, rate, stock):
+        old_price = self.get_price(curr_price, rate)
+        os = stock.os
+        return old_price * os
+
+    def get_return(self, new, old):
+        return (new-old)/old
+    
+    def get_returns(self):
+        self.month_return           = self.get_return(self.curr_value, self.month_value)
+        self.three_month_return     = self.get_return(self.curr_value, self.three_month_value)
+        self.six_month_return       = self.get_return(self.curr_value, self.six_month_value)
+        self.twelve_month_return    = self.get_return(self.curr_value, self.twelve_month_value)
+        self.ytd_return             = self.get_return(self.curr_value, self.ytd_value)
+    
+    def init_sector(self):
+        self.get_total_market_cap()
+        self.get_returns()
+    
