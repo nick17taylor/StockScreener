@@ -1,5 +1,5 @@
 # StockScreener
-This is a stock screener to identify trending Stock Market sectors and and stocks
+This is a stock screener to identify trending Stock Market sectors and stocks.
 
 **Stock Market Sectors**
 1. Technology
