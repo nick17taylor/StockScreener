@@ -1,0 +1,109 @@
+import pandas as pd
+pd.set_option('display.max_columns',None)
+
+class GUI:
+  def __init__(self, sector_lists):
+    self.sectors = sector_lists
+    self.input_mapping = {}
+
+  def create_input_mapping(self):
+    j = 0
+    for sector in self.sectors:
+      self.input_mapping[str(j)] = {}
+      self.input_mapping[str(j)]['Sector Name'] = sector.sector
+      self.input_mapping[str(j)]['Sector Object'] = sector
+      j += 1
+
+  def recursive_input(self):
+    input_val = int(input('Please select an industry: '))
+    if input_val > len(self.input_mapping) or input_val < 0:
+      self.recursive_input()
+    else:
+      return input_val
+
+  def create_main_display(self):
+    for i in range(len(self.input_mapping)):
+      print(str(i) + ': ' + self.input_mapping[str(i)]['Sector Name'])
+
+    input = self.recursive_input()
+    sector = self.input_mapping[str(input)]['Sector Object']
+    self.show_sector_data(sector)
+
+  def show_sector_data(self, sector):
+    input_val = 1
+
+    stock_ticker_list                       = []
+    stock_ytd_return_list                   = []
+    stock_month_return_list                 = []
+    stock_three_month_return_list           = []
+    stock_six_month_return_list             = []
+    stock_twelve_month_return_list          = []
+    stock_current_price_list                = []
+    stock_company_name_list                 = []
+    stock_sector_list                       = []
+    stock_revenue_list                      = []
+    stock_gross_profit_list                 = []
+    stock_ebitda_list                       = []
+    stock_debt_list                         = []
+    stock_cash_list                         = []
+    stock_profit_margin_list                = []
+    stock_os_list                           = []
+    stock_ev_list                           = []
+    stock_market_cap_list                   = []
+    stock_recommendation_list               = []
+
+    for stock in sector.stock_list:
+      stock_company_name_list.append(stock.company)
+      stock_ticker_list.append(stock.ticker)
+      stock_month_return_list.append(stock.month_return)
+      stock_three_month_return_list.append(stock.three_month_return)
+      stock_six_month_return_list.append(stock.six_month_return)
+      stock_twelve_month_return_list.append(stock.twelve_month_return)
+      stock_ytd_return_list.append(stock.ytd_return)
+      stock_current_price_list.append(stock.current_price)
+      stock_revenue_list.append(stock.curr_revenue)
+      stock_gross_profit_list.append(stock.curr_gross_profit)
+      stock_ebitda_list.append(stock.curr_ebitda)
+      stock_debt_list.append(stock.curr_debt)
+      stock_cash_list.append(stock.curr_cash)
+      stock_profit_margin_list.append(stock.profit_margin)
+      stock_os_list.append(stock.os)
+      stock_ev_list.append(stock.ev)
+      stock_market_cap_list.append(stock.market_cap)
+      stock_recommendation_list.append(stock.analyst_rec)
+
+    stock_df                            = pd.DataFrame(index=[stock_ticker_list])
+    stock_df['Company']                 = stock_company_name_list
+    stock_df['Current Price']           = stock_current_price_list
+    stock_df['1 Month Return']          = stock_month_return_list
+    stock_df['3 Month Return']          = stock_three_month_return_list
+    stock_df['6 Month Return']          = stock_six_month_return_list
+    stock_df['12 Month Return']         = stock_twelve_month_return_list
+    stock_df['YTD Return']              = stock_ytd_return_list
+    stock_df['Revenue']                 = stock_revenue_list
+    stock_df['Gross Profit']            = stock_gross_profit_list
+    stock_df['Gross Profit Margin']     = stock_profit_margin_list
+    stock_df['EBITDA']                  = stock_ebitda_list
+    stock_df['Debt']                    = stock_debt_list
+    stock_df['Cash']                    = stock_cash_list
+    stock_df['OS']                      = stock_os_list
+    stock_df['Enterprise Value']        = stock_ev_list
+    stock_df['Market Cap']              = stock_market_cap_list
+    stock_df['Analyst Recommendation']  = stock_recommendation_list
+
+    stock_df['Weighted Return']         = stock_df['YTD Return'] * 0.05 + stock_df['1 Month Return'] * 0.1 + stock_df['3 Month Return'] * 0.2 + stock_df['6 Month Return'] * 0.3 + stock_df['12 Month Return'] * 0.35
+
+    while input_val != 0:
+      print('These are the top 10 hottest stocks in the sector...')
+      print(stock_df.nlargest(10,'1 Month Return'))
+
+      print('\n')
+      print('We recommend these top 10 stocks...')
+      print(stock_df.nlargest(10,'Weighted Return'))
+      input_val = int(input('Press 0 to return to Main Menu'))
+
+    self.create_main_display()
+
+  def main(self):
+    self.create_input_mapping()
+    self.create_main_display()
